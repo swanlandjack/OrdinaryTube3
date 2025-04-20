@@ -1,0 +1,13 @@
+# Environment variables
+.env
+
+# Local Netlify state/build directory
+.netlify/
+
+# macOS folder metadata
+.DS_Store
+
+# Optional: Editor backup files (if you use editors that create them)
+# *~
+# *.swp
+# *.swo

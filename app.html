@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordinary Tube Search and Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #FF0000;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #FF0000;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #cc0000;
+        }
+        .toggle-button {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 2px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        .toggle-button:hover {
+            background-color: #e0e0e0;
+        }
+        .toggle-button .icon {
+            font-size: 16px;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .section-header label {
+            margin-bottom: 0;
+        }
+        .api-keys-content {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #f5f5f5;
+            margin-top: 5px;
+        }
+        .api-key-field {
+            margin-bottom: 15px;
+        }
+        .prompt-bubbles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .prompt-bubble {
+            background-color: #e0e0e0;
+            color: #333;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .prompt-bubble:hover {
+            background-color: #d0d0d0;
+        }
+        .prompt-bubble.active {
+            background-color: #FF0000;
+            color: white;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .video-item {
+            display: flex;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .video-thumbnail {
+            width: 120px;
+            margin-right: 15px;
+        }
+        .video-thumbnail img {
+            width: 100%;
+            border-radius: 4px;
+        }
+        .video-info {
+            flex-grow: 1;
+        }
+        .video-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .video-stats {
+            font-size: 14px;
+            color: #606060;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        .loading {
+            text-align: center;
+            margin: 20px 0;
+            font-style: italic;
+            color: #666;
+        }
+        .search-term-header {
+            margin-top: 20px;
+            background-color: #f0f0f0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            color: #333;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+        }
+        .checkbox-group label {
+            display: inline;
+            font-weight: normal;
+        }
+        .video-summary-container {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed #ddd;
+        }
+        .video-summary-loading {
+            color: #888;
+            font-style: italic;
+        }
+        .summary-header {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #8758FF;
+            font-size: 16px;
+        }
+        .summary-content {
+            background-color: #F9F4FF;
+            padding: 12px 16px;
+            border-radius: 4px;
+            border-left: 3px solid #8758FF;
+            line-height: 1.6;
+        }
+        .summary-content strong {
+            font-weight: bold;
+        }
+        .summary-content ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        .summary-content li {
+            margin-bottom: 16px;
+            padding-left: 1.5em;
+            text-indent: -1.5em;
+        }
+        .summary-content li:before {
+            content: "• ";
+        }
+        .api-key-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+        .gemini-section {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #d0e0f0;
+        }
+        .hidden {
+            display: none;
+        }
+        #accessVerification {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #logoutBtn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        /* Optional: Keep debug div for other messages if needed */
+        #debug {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #f8f8f8;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="accessVerification">
+        <div style="text-align: center; max-width: 400px; padding: 20px;">
+            <h2>Verifying Access...</h2>
+            <p>Please wait while we verify your access to this application.</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <button id="logoutBtn">Log Out</button>
+        <h1>Ordinary YouTube Top Videos Search & AI Summary</h1>
+        <p>Find the most viewed YouTube videos based on keywords and time range</p>
+
+        <div class="form-group">
+            <label for="keywords">Keywords or Phrases:</label>
+            <input type="text" id="keywords" placeholder="Enter search keywords">
+        </div>
+
+        <div class="form-group">
+            <label>Quick Prompts:</label>
+            <div class="prompt-bubbles">
+                <button type="button" class="prompt-bubble" data-prompt="TVB News">TVB News</button>
+                <button type="button" class="prompt-bubble" data-prompt="CNBC">CNBC</button>
+                <button type="button" class="prompt-bubble" data-prompt="Bloomberg News">Bloomberg News</button>
+                <button type="button" class="prompt-bubble" data-prompt="BBC News">BBC News</button>
+                <button type="button" class="prompt-bubble" data-prompt="信報財經新聞">信報財經新聞</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="timeRange">Time Range:</label>
+            <select id="timeRange">
+                <option value="1">Last 24 hours</option>
+                <option value="7" selected>Last 7 days</option>
+                <option value="14">Last 14 days</option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 3 months</option>
+                <option value="180">Last 6 months</option>
+                <option value="365">Last year</option>
+            </select>
+        </div>
+
+        <div class="form-group api-key-section">
+            <div class="section-header">
+                <label for="apiKey">API Keys</label>
+                <button type="button" id="toggleApiKeys" class="toggle-button" title="Show/Hide API Keys">
+                    <span class="icon">👁️</span>
+                </button>
+            </div>
+            <div id="apiKeysContent" class="api-keys-content">
+                <div class="api-key-field">
+                    <label for="apiKey">YouTube API Key:</label>
+                    <input type="password" id="apiKey" placeholder="Enter your YouTube API Key">
+                    <div class="api-key-info">
+                        Get this from the <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a> by enabling the YouTube Data API v3
+                    </div>
+                </div>
+
+                <div class="api-key-field">
+                    <label for="geminiApiKey">Gemini API Key:</label>
+                    <input type="password" id="geminiApiKey" placeholder="Enter your Gemini API Key (optional)">
+                    <div class="api-key-info">
+                        Get this from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> to enable automatic video summarization
+                    </div>
+                    <div class="api-key-info" style="color: #FF6600; margin-top: 4px;">
+                        <strong>Note:</strong> This app uses the Gemini 2.0 Flash model. Make sure your API key has access to this model.
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="saveKeys">
+                    <label for="saveKeys">Remember API keys on this device</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Options:</label>
+            <div class="checkbox-group">
+                <input type="checkbox" id="fetchSummaries" checked>
+                <label for="fetchSummaries">Generate summaries using Gemini API</label>
+            </div>
+        </div>
+
+        <button id="searchBtn">Search</button>
+
+        <div id="loading" class="loading" style="display: none;">
+            Searching for videos... This may take a moment.
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="results"></div>
+    </div>
+
+    <div id="debug">---- DEBUG OUTPUT ----</div>
+
+    <script>
+    // DEBUG: Log that the script block itself has started executing
+    console.log("APP.HTML: Script block START");
+
+    // --- DEBUG: Custom console.log override commented out ---
+    /*
+    // Store the original console.log function
+    const originalConsoleLog = console.log;
+    console.log("APP: Script started"); // This line will use the *original* console.log now
+
+    // Override console.log
+    console.log = function(message) {
+      // Use the original function to avoid recursion
+      originalConsoleLog.call(console, message);
+
+      // Add to debug div
+      const debugDiv = document.getElementById('debug'); // Make sure this exists or handle null
+      if (debugDiv) {
+           // Basic approach: append text content
+          const entry = document.createElement('div');
+          entry.textContent = message;
+          debugDiv.appendChild(entry);
+          // Scroll to bottom if needed
+          debugDiv.scrollTop = debugDiv.scrollHeight;
+      } else {
+          originalConsoleLog.call(console, "Debug div not found!");
+      }
+    };
+    */
+    // --- END OF COMMENTED OUT SECTION ---
+
+
+    // Define activePrompts globally so it's accessible to all functions
+    let activePrompts = [];
+
+    // Verify access token before showing content
+    document.addEventListener('DOMContentLoaded', async function () {
+        // DEBUG: Log that the DOM is ready and the verification listener is firing
+        console.log("APP.HTML: DOMContentLoaded event fired");
+
+        const accessToken = localStorage.getItem('ordinaryTubeAccess');
+        // DEBUG: Log whether the token was found
+        console.log("APP.HTML: Access token from localStorage:", accessToken ? `Found (length: ${accessToken.length})` : "Not found");
+
+        const accessVerification = document.getElementById('accessVerification');
+        if (!accessVerification) {
+             console.error("APP.HTML: Critical error - accessVerification element not found!");
+             alert("Critical error: UI element missing. Cannot verify access.");
+             return; // Stop execution if essential element is missing
+        }
+
+
+        if (!accessToken) {
+            console.log("APP.HTML: No access token found, redirecting to login.");
+            window.location.href = "/"; // Redirect to index.html (login page)
+            return; // Stop further execution in this listener
+        }
+
+        try {
+            // DEBUG: Log before making the fetch call
+            console.log("APP.HTML: Attempting to verify token via fetch to /.netlify/functions/verify-access");
+
+            const response = await fetch('/.netlify/functions/verify-access', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: accessToken })
+            });
+
+            // DEBUG: Log the response status
+            console.log("APP.HTML: Verification fetch response status:", response.status);
+
+            if (!response.ok) {
+                // Log error for non-2xx responses before trying to parse
+                console.error(`APP.HTML: Verification fetch failed with status ${response.status}`);
+                throw new Error(`Verification failed with status ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            // DEBUG: Log the verification result
+            console.log("APP.HTML: Verification fetch result:", result);
+
+            if (result.success) {
+                // DEBUG: Log successful verification
+                console.log("APP.HTML: Token verified successfully, hiding overlay and setting up app.");
+
+                accessVerification.style.display = 'none'; // Hide the overlay
+                setupApp(); // Initialize the main application UI and logic
+
+            } else {
+                console.warn("APP.HTML: Token verification failed (API returned success: false), redirecting to login.");
+                localStorage.removeItem('ordinaryTubeAccess'); // Clean up invalid token
+                window.location.href = "/"; // Redirect to index.html
+                return;
+            }
+
+        } catch (err) {
+            // DEBUG: Log any error during the fetch/verification process
+            console.error("APP.HTML: Error during access verification fetch:", err);
+            alert(`An error occurred during verification: ${err.message}. Redirecting to login.`); // Inform user
+            localStorage.removeItem('ordinaryTubeAccess'); // Clean up potentially problematic token
+            window.location.href = "/"; // Redirect to index.html
+        }
+    });
+
+    // Set up the application after access verification
+    function setupApp() {
+        console.log("APP.HTML: setupApp() called - Initializing application UI and listeners.");
+        // Note: activePrompts is now a global variable
+
+        // Set up event listeners
+        const searchBtn = document.getElementById('searchBtn');
+        if (searchBtn) {
+             searchBtn.addEventListener('click', () => searchAllVideos());
+        } else {
+            console.error("APP.HTML: Search button not found!");
+        }
+
+
+        // Add event listener for logout button
+        const logoutBtn = document.getElementById('logoutBtn');
+         if (logoutBtn) {
+             logoutBtn.addEventListener('click', function() {
+                console.log("APP.HTML: Logout button clicked.");
+                localStorage.removeItem('ordinaryTubeAccess');
+                window.location.href = "/";
+            });
+         } else {
+             console.error("APP.HTML: Logout button not found!");
+         }
+
+
+        // Add event listeners for prompt bubbles
+        const promptBubbles = document.querySelectorAll('.prompt-bubble');
+        promptBubbles.forEach(bubble => {
+            bubble.addEventListener('click', function() {
+                const prompt = this.getAttribute('data-prompt');
+                console.log(`APP.HTML: Prompt bubble clicked: ${prompt}`);
+                // Toggle active state
+                if (this.classList.contains('active')) {
+                    this.classList.remove('active');
+                    activePrompts = activePrompts.filter(item => item !== prompt);
+                } else {
+                    this.classList.add('active');
+                    activePrompts.push(prompt);
+                }
+                console.log("APP.HTML: Active prompts:", activePrompts);
+            });
+        });
+
+        // Load saved API keys if they exist
+        loadSavedAPIKeys();
+
+        // Add event listener for the save API keys checkbox
+        const saveKeysCheckbox = document.getElementById('saveKeys');
+        if (saveKeysCheckbox) {
+            saveKeysCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    console.log("APP.HTML: 'Save API keys' checked.");
+                    saveAPIKeys();
+                    // Optional: Hide API key section after saving
+                    // document.getElementById('apiKeysContent').classList.add('hidden');
+                } else {
+                    console.log("APP.HTML: 'Save API keys' unchecked.");
+                    // If unchecked, clear the saved keys
+                    localStorage.removeItem('youtubeAPIKey');
+                    localStorage.removeItem('geminiAPIKey');
+                }
+            });
+        } else {
+             console.error("APP.HTML: Save keys checkbox not found!");
+        }
+
+
+        // Add event listeners to save keys when they change
+        const apiKeyInput = document.getElementById('apiKey');
+        if (apiKeyInput) {
+             apiKeyInput.addEventListener('input', function() {
+                if (document.getElementById('saveKeys')?.checked) {
+                    saveAPIKeys();
+                }
+            });
+        } else {
+            console.error("APP.HTML: YouTube API Key input not found!");
+        }
+
+        const geminiApiKeyInput = document.getElementById('geminiApiKey');
+         if (geminiApiKeyInput) {
+            geminiApiKeyInput.addEventListener('input', function() {
+                if (document.getElementById('saveKeys')?.checked) {
+                    saveAPIKeys();
+                }
+            });
+         } else {
+             console.error("APP.HTML: Gemini API Key input not found!");
+         }
+
+
+        // Add event listener for the toggle button
+        const toggleApiBtn = document.getElementById('toggleApiKeys');
+        if (toggleApiBtn) {
+            toggleApiBtn.addEventListener('click', function() {
+                const apiKeysContent = document.getElementById('apiKeysContent');
+                const eyeIcon = this.querySelector('.icon');
+                if (apiKeysContent && eyeIcon) {
+                     apiKeysContent.classList.toggle('hidden');
+                    // Update the eye icon based on visibility
+                    if (apiKeysContent.classList.contains('hidden')) {
+                        eyeIcon.textContent = '👁️';
+                        this.setAttribute('title', 'Show API Keys');
+                        console.log("APP.HTML: API Keys hidden.");
+                    } else {
+                        eyeIcon.textContent = '👁️‍🗨️'; // Changed icon slightly for visible state
+                        this.setAttribute('title', 'Hide API Keys');
+                         console.log("APP.HTML: API Keys shown.");
+                    }
+                } else {
+                     console.error("APP.HTML: API Keys content or toggle icon not found!");
+                }
+
+            });
+        } else {
+             console.error("APP.HTML: Toggle API Keys button not found!");
+        }
+
+
+        // Initially hide API keys section if they're saved and the checkbox exists
+         const apiKeysContentOnInit = document.getElementById('apiKeysContent');
+         if (apiKeysContentOnInit && saveKeysCheckbox?.checked && (localStorage.getItem('youtubeAPIKey') || localStorage.getItem('geminiAPIKey'))) {
+            apiKeysContentOnInit.classList.add('hidden');
+            // Ensure toggle button icon is correct if hidden initially
+            const toggleBtnIcon = document.querySelector('#toggleApiKeys .icon');
+            if (toggleBtnIcon) toggleBtnIcon.textContent = '👁️';
+            const toggleBtn = document.getElementById('toggleApiKeys');
+            if (toggleBtn) toggleBtn.setAttribute('title', 'Show API Keys');
+             console.log("APP.HTML: Hiding API keys initially as they were saved.");
+        } else if (apiKeysContentOnInit && !apiKeysContentOnInit.classList.contains('hidden')) {
+            // Ensure toggle button icon is correct if shown initially
+             const toggleBtnIcon = document.querySelector('#toggleApiKeys .icon');
+            if (toggleBtnIcon) toggleBtnIcon.textContent = '👁️‍🗨️';
+             const toggleBtn = document.getElementById('toggleApiKeys');
+             if (toggleBtn) toggleBtn.setAttribute('title', 'Hide API Keys');
+        }
+    }
+
+    // Function to save API keys to localStorage
+    function saveAPIKeys() {
+        const youtubeKeyInput = document.getElementById('apiKey');
+        const geminiKeyInput = document.getElementById('geminiApiKey');
+
+        if (youtubeKeyInput) {
+            const youtubeKey = youtubeKeyInput.value.trim();
+             if (youtubeKey) {
+                localStorage.setItem('youtubeAPIKey', youtubeKey);
+                 console.log("APP.HTML: Saved YouTube API Key to localStorage.");
+            } else {
+                 localStorage.removeItem('youtubeAPIKey'); // Remove if cleared
+                 console.log("APP.HTML: Cleared YouTube API Key from localStorage.");
+            }
+        }
+
+        if (geminiKeyInput) {
+             const geminiKey = geminiKeyInput.value.trim();
+             if (geminiKey) {
+                localStorage.setItem('geminiAPIKey', geminiKey);
+                 console.log("APP.HTML: Saved Gemini API Key to localStorage.");
+            } else {
+                localStorage.removeItem('geminiAPIKey'); // Remove if cleared
+                 console.log("APP.HTML: Cleared Gemini API Key from localStorage.");
+            }
+        }
+    }
+
+    // Function to load saved API keys from localStorage
+    function loadSavedAPIKeys() {
+        console.log("APP.HTML: loadSavedAPIKeys() called.");
+        const savedYoutubeKey = localStorage.getItem('youtubeAPIKey');
+        const savedGeminiKey = localStorage.getItem('geminiAPIKey');
+        const saveKeysCheckbox = document.getElementById('saveKeys');
+
+        const youtubeKeyInput = document.getElementById('apiKey');
+        const geminiKeyInput = document.getElementById('geminiApiKey');
+
+        if (savedYoutubeKey && youtubeKeyInput) {
+            youtubeKeyInput.value = savedYoutubeKey;
+             console.log("APP.HTML: Loaded YouTube API Key from localStorage.");
+        }
+
+        if (savedGeminiKey && geminiKeyInput) {
+            geminiKeyInput.value = savedGeminiKey;
+             console.log("APP.HTML: Loaded Gemini API Key from localStorage.");
+        }
+
+        // If keys were found in storage, check the save box (if it exists)
+        if ((savedYoutubeKey || savedGeminiKey) && saveKeysCheckbox) {
+            saveKeysCheckbox.checked = true;
+             console.log("APP.HTML: Checked 'Save API Keys' box because keys were found in storage.");
+        }
+    }
+
+    // Function to search for all videos based on selected terms
+    async function searchAllVideos() {
+         console.log("APP.HTML: searchAllVideos() called.");
+        const resultsDiv = document.getElementById('results');
+        const errorDiv = document.getElementById('error');
+        const loadingDiv = document.getElementById('loading');
+        const apiKeyInput = document.getElementById('apiKey');
+        const keywordsInput = document.getElementById('keywords');
+
+        // Ensure elements exist before accessing properties
+        if (!resultsDiv || !errorDiv || !loadingDiv || !apiKeyInput || !keywordsInput) {
+            console.error("APP.HTML: Critical error - UI element missing for search.");
+            alert("Error: Cannot perform search due to missing UI elements.");
+            return;
+        }
+
+        const apiKey = apiKeyInput.value.trim();
+        const freeTextInput = keywordsInput.value.trim();
+
+        console.log(`APP.HTML: API Key provided: ${apiKey ? 'Yes (length: ' + apiKey.length + ')' : 'No'}`);
+        console.log(`APP.HTML: Free text input: "${freeTextInput}"`);
+        console.log(`APP.HTML: Active prompts: ${JSON.stringify(activePrompts)}`);
+
+        // Clear previous results and errors
+        resultsDiv.innerHTML = '';
+        errorDiv.style.display = 'none';
+        errorDiv.textContent = ''; // Clear text content too
+
+        // Validate API key
+        if (!apiKey) {
+             console.log("APP.HTML: Search aborted - YouTube API Key missing.");
+            errorDiv.textContent = 'Please enter your YouTube API Key';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        // Validate that we have at least one search term
+        if (activePrompts.length === 0 && !freeTextInput) {
+             console.log("APP.HTML: Search aborted - No keywords or prompts selected.");
+            errorDiv.textContent = 'Please enter keywords or select a prompt bubble';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        // Show loading indicator
+        loadingDiv.style.display = 'block';
+
+        // Create an array of all search terms
+        const searchTerms = [...activePrompts];
+        if (freeTextInput) {
+            searchTerms.push(freeTextInput);
+        }
+         console.log("APP.HTML: Combined search terms:", searchTerms);
+
+        try {
+            // Create a header for results
+            const resultHeader = document.createElement('h2');
+            resultHeader.textContent = `Search Results`;
+            resultsDiv.appendChild(resultHeader);
+
+            // Initialize an array to collect all videos
+            let allVideos = [];
+
+            // Process each search term
+             console.log(`APP.HTML: Starting search loop for ${searchTerms.length} term(s).`);
+            for (const term of searchTerms) {
+                 console.log(`APP.HTML: Searching for term: "${term}"`);
+                try {
+                    // Limit to top 3 results per term as per original logic
+                    const videos = await searchVideos(term, 3, apiKey);
+                     console.log(`APP.HTML: Found ${videos.length} videos for "${term}"`);
+
+                    // Add source information to each video
+                    videos.forEach(video => {
+                        video.searchTerm = term;
+                    });
+
+                    // Add to the collection
+                    allVideos = allVideos.concat(videos);
+                } catch (error) {
+                    console.error(`APP.HTML: Error searching for "${term}":`, error);
+                    // Create an error message for this specific term
+                    const termErrorDiv = document.createElement('div');
+                    termErrorDiv.className = 'search-term-header error'; // Added error class
+                    termErrorDiv.style.color = 'red';
+                    termErrorDiv.textContent = `Error searching for "${term}": ${error.message}`;
+                    resultsDiv.appendChild(termErrorDiv);
+                }
+            }
+             console.log(`APP.HTML: Total videos collected across all terms: ${allVideos.length}`);
+
+            // Display all videos
+            await displayVideos(allVideos, resultsDiv);
+
+        } catch (error) {
+             console.error("APP.HTML: Error in searchAllVideos main block:", error);
+            errorDiv.textContent = error.message || 'An error occurred while searching for videos';
+            errorDiv.style.display = 'block';
+        } finally {
+             console.log("APP.HTML: Hiding loading indicator.");
+            loadingDiv.style.display = 'none'; // Hide loading indicator
+        }
+    }
+
+
+    // Function to get video transcript (if available) - Placeholder
+    async function fetchVideoTranscript(videoId, apiKey) {
+         console.warn(`APP.HTML: fetchVideoTranscript called for ${videoId}, but it's a placeholder.`);
+        try {
+            // Note: YouTube API doesn't provide direct access to transcripts easily
+            // This remains a placeholder.
+            // Actual implementation would need Captions API and potentially OAuth.
+
+            /*
+            const captionsUrl = `https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=${videoId}&key=${apiKey}`;
+            const captionsResponse = await fetch(captionsUrl);
+            const captionsData = await captionsResponse.json();
+
+            if (captionsData.error) {
+                console.error('APP.HTML: Error fetching captions list:', captionsData.error);
+                return null;
+            }
+            // Further logic needed here to find suitable caption track (e.g., 'en')
+            // and then download it using captions.download endpoint (requires OAuth usually)
+            */
+
+            return "Transcript functionality not fully implemented via public API.";
+
+        } catch (error) {
+            console.error('APP.HTML: Error in placeholder fetchVideoTranscript:', error);
+            return null;
+        }
+    }
+
+    // Function to get a summary from Gemini API
+    async function fetchGeminiSummary(videoInfo, geminiApiKey) {
+         console.log(`APP.HTML: fetchGeminiSummary called for video ID: ${videoInfo.id}`);
+        try {
+            if (!geminiApiKey) {
+                 console.log("APP.HTML: Gemini summary skipped - API Key not provided.");
+                return "Gemini API Key not provided. Please enter a valid key to generate summaries.";
+            }
+
+            // Check if content is likely Chinese for prompt adjustment
+             const title = videoInfo.snippet?.title || '';
+             const description = videoInfo.snippet?.description || '';
+             const channelTitle = videoInfo.snippet?.channelTitle || '';
+
+            const isChineseContent = containsChinese(title) || containsChinese(description);
+             console.log(`APP.HTML: Chinese content detected: ${isChineseContent}`);
+
+            // Updated Gemini API endpoint using the specified model
+            const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent"; // Using 1.5 Flash as mentioned in original code comments
+             console.log(`APP.HTML: Using Gemini endpoint: ${endpoint}`);
+
+            // Prepare the prompt with video information - adjusted for Chinese if needed
+            const prompt = isChineseContent ?
+            `請根據這個YouTube影片的標題和描述，提供詳細的摘要：
+
+標題: ${title}
+頻道: ${channelTitle}
+描述: ${description}
+
+請提供5個重點，概括這個影片的主要資訊：
+1. 確保每個重點開始於一個項目符號 (•)
+2. 每個重點應該有一個粗體的標題，後面跟著詳細的解釋
+3. 使用繁體中文
+4. 保持清晰和易於閱讀`
+            :
+            `Please provide a summary of this YouTube video based on its title and description:
+
+Title: ${title}
+Channel: ${channelTitle}
+Description: ${description}
+
+Please create a summary with 5 bullet points that cover the main information from this video.
+For each point:
+1. Start with a bullet point (•)
+2. Include a bold title/heading within the point.
+3. Follow with a clear explanation.
+4. Keep it informative and concise.
+
+Focus on extracting the most important information, insights, or topics mentioned or implied by the title and description.`;
+
+            // Prepare the request body
+            const requestBody = {
+                contents: [
+                    {
+                        parts: [ { text: prompt } ]
+                    }
+                ],
+                generationConfig: {
+                    temperature: 0.3, // Slightly higher temp for potentially more variation
+                    maxOutputTokens: 800 // Increased slightly
+                }
+            };
+             console.log("APP.HTML: Sending request to Gemini API...");
+
+            // Make the API request
+            const response = await fetch(`${endpoint}?key=${geminiApiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            });
+             console.log(`APP.HTML: Gemini API response status: ${response.status}`);
+
+            if (!response.ok) {
+                 const errorText = await response.text();
+                 console.error(`APP.HTML: Gemini API error response (${response.status}): ${errorText}`);
+                 throw new Error(`Gemini API request failed with status ${response.status}: ${errorText}`);
+             }
+
+            const data = await response.json();
+
+            // Check for Gemini API specific errors in the response body
+             if (data.error) {
+                console.error('APP.HTML: Gemini API returned an error object:', data.error);
+                throw new Error(data.error.message || 'Error generating summary (API error)');
+            }
+             // More robust check for successful content generation
+             if (data.candidates && data.candidates.length > 0 &&
+                data.candidates[0].content && data.candidates[0].content.parts &&
+                 data.candidates[0].content.parts.length > 0 && data.candidates[0].content.parts[0].text)
+             {
+                let text = data.candidates[0].content.parts[0].text;
+                console.log("APP.HTML: Received summary text from Gemini.");
+
+                 // Basic Markdown processing for display
+                 // Replace **bold** with <strong>bold</strong>
+                 text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                 // Ensure list items starting with '•' or '*' or '-' are handled (basic)
+                 text = text.replace(/^\s*([•*-])\s*(.*)/gm, '<li>$2</li>');
+                 // Wrap the whole thing in <ul> if it looks like a list
+                 if (text.includes('<li>')) {
+                    text = '<ul>' + text + '</ul>';
+                 }
+                 // Convert newlines to <br> for non-list content
+                 text = text.replace(/\n/g, '<br>');
+                 // Clean up potential double breaks around list items
+                 text = text.replace(/<br><li>/g, '<li>');
+                 text = text.replace(/<\/li><br>/g, '</li>');
+
+
+                 return text;
+             } else {
+                 console.warn("APP.HTML: Gemini response structure unexpected or content missing:", data);
+                 // Check for safety ratings / blocked content
+                 if (data.candidates && data.candidates.length > 0 && data.candidates[0].finishReason === 'SAFETY') {
+                      console.warn("APP.HTML: Gemini summary generation blocked due to safety settings.");
+                     return "Summary generation was blocked due to safety settings.";
+                 }
+                return "Failed to generate summary. Unexpected response format from API.";
+             }
+
+        } catch (error) {
+            console.error('APP.HTML: Error in fetchGeminiSummary:', error);
+            return `<span class="error">Error generating summary: ${error.message}</span>`;
+        }
+    }
+
+    // Function to detect Chinese characters
+    function containsChinese(text) {
+        if (!text) return false;
+        // Unicode ranges for Chinese characters (simplified/traditional/extensions)
+        const chineseRegex = /[\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF]/;
+        return chineseRegex.test(text);
+    }
+
+    // Function to search for videos with a specific term
+    async function searchVideos(term, maxResults, apiKey) {
+        console.log(`APP.HTML: searchVideos called for term="${term}", maxResults=${maxResults}`);
+
+        const timeRangeSelect = document.getElementById('timeRange');
+         if (!timeRangeSelect) {
+            console.error("APP.HTML: Time range select element not found!");
+             throw new Error("Time range selector not found.");
+         }
+        const timeRange = timeRangeSelect.value;
+        console.log(`APP.HTML: Time range selected: ${timeRange} days`);
+
+        // Calculate the date for the time range
+        const now = new Date();
+        const pastDate = new Date(now.getTime() - (parseInt(timeRange, 10) * 24 * 60 * 60 * 1000));
+        const publishedAfter = pastDate.toISOString();
+        console.log(`APP.HTML: Calculated publishedAfter date: ${publishedAfter}`);
+
+        // First, search for videos with the keywords and time range
+        // Fetch more initially (e.g., 25) to have a better pool for sorting by views
+        const initialFetchCount = 25;
+        const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(term)}&type=video&publishedAfter=${publishedAfter}&order=viewCount&maxResults=${initialFetchCount}&key=${apiKey}`;
+         console.log(`APP.HTML: Making YouTube search request (key hidden): ${searchUrl.replace(apiKey, 'API_KEY_HIDDEN')}`);
+
+        try {
+            const searchResponse = await fetch(searchUrl);
+            console.log(`APP.HTML: YouTube search response status: ${searchResponse.status}`);
+
+            if (!searchResponse.ok) {
+                const errorData = await searchResponse.json().catch(() => ({})); // Try to get JSON error
+                 console.error('APP.HTML: YouTube API Search Error Response:', errorData);
+                 throw new Error(errorData.error?.message || `YouTube Search API request failed with status ${searchResponse.status}`);
+             }
+
+            const searchData = await searchResponse.json();
+
+             // Check if we have items in the response
+             if (!searchData.items) {
+                 console.warn(`APP.HTML: YouTube search for "${term}" returned no items array.`);
+                 return [];
+             }
+
+            console.log(`APP.HTML: Found ${searchData.items.length} videos in initial search for "${term}"`);
+
+            // If no videos found, return empty array
+            if (searchData.items.length === 0) {
+                return [];
+            }
+
+            // Extract video IDs for the statistics request
+            const videoIds = searchData.items.map(item => item.id?.videoId).filter(id => id).join(',');
+             if (!videoIds) {
+                 console.warn(`APP.HTML: No valid video IDs extracted from search results for "${term}".`);
+                 return [];
+             }
+             console.log(`APP.HTML: Extracted video IDs for details request: ${videoIds}`);
+
+            // Next, get detailed video information including statistics (view counts etc.)
+            const videoUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoIds}&key=${apiKey}`;
+             console.log(`APP.HTML: Making YouTube video details request (key hidden): ${videoUrl.replace(apiKey, 'API_KEY_HIDDEN')}`);
+
+            const videoResponse = await fetch(videoUrl);
+            console.log(`APP.HTML: YouTube video details response status: ${videoResponse.status}`);
+
+            if (!videoResponse.ok) {
+                 const errorData = await videoResponse.json().catch(() => ({}));
+                 console.error('APP.HTML: YouTube API Video Details Error Response:', errorData);
+                throw new Error(errorData.error?.message || `YouTube Video Details API request failed with status ${videoResponse.status}`);
+             }
+
+            const videoData = await videoResponse.json();
+
+             if (!videoData.items) {
+                 console.warn(`APP.HTML: YouTube video details for "${term}" returned no items array.`);
+                 return [];
+             }
+
+            // Add view count as a number for easier sorting, handle missing stats
+             videoData.items.forEach(item => {
+                 item.viewCountNumeric = parseInt(item.statistics?.viewCount || '0', 10);
+             });
+
+            // Sort by view count (most viewed first)
+            videoData.items.sort((a, b) => b.viewCountNumeric - a.viewCountNumeric);
+             console.log(`APP.HTML: Sorted ${videoData.items.length} videos by view count.`);
+
+            // Return the top N videos based on maxResults parameter
+            const topVideos = videoData.items.slice(0, maxResults);
+             console.log(`APP.HTML: Returning top ${topVideos.length} videos for "${term}".`);
+            return topVideos;
+
+        } catch (error) {
+            console.error(`APP.HTML: Error in searchVideos function for term "${term}":`, error);
+            throw error; // Re-throw the error to be caught by the calling function
+        }
+    }
+
+    // Function to display videos
+   // Function to display videos (Corrected Version)
+   async function displayVideos(videos, resultsDiv) {
+        console.log(`APP.HTML: displayVideos called with ${videos.length} videos.`);
+        if (!resultsDiv) {
+             console.error("APP.HTML: Cannot display videos - resultsDiv is null!");
+             return;
+        }
+
+        // Clear previous results specifically within this function's scope if needed
+        // resultsDiv.innerHTML = ''; // Uncomment if you want search to clear previous results entirely before adding new ones
+
+        if (videos.length === 0) {
+            resultsDiv.innerHTML += '<p>No videos found matching your criteria.</p>';
+            return;
+        }
+
+        // Check if we should generate summaries
+        const fetchSummariesCheckbox = document.getElementById('fetchSummaries');
+        const shouldGenerateSummaries = fetchSummariesCheckbox ? fetchSummariesCheckbox.checked : false;
+        console.log(`APP.HTML: Generate summaries enabled: ${shouldGenerateSummaries}`);
+
+        const geminiApiKeyInput = document.getElementById('geminiApiKey');
+        const geminiApiKey = geminiApiKeyInput ? geminiApiKeyInput.value.trim() : '';
+
+        // Group videos by search term for structured display
+        const groupedVideos = {};
+        videos.forEach(video => {
+            const term = video.searchTerm || 'Unknown Term'; // Fallback
+            if (!groupedVideos[term]) {
+                groupedVideos[term] = [];
+            }
+            groupedVideos[term].push(video);
+        });
+        console.log("APP.HTML: Videos grouped by search term:", Object.keys(groupedVideos));
+
+        // Use a document fragment for better performance when adding multiple elements
+        const fragment = document.createDocumentFragment();
+
+        // Keep track of videos needing summary fetches
+        const videosToSummarize = [];
+
+        // === FIRST LOOP: Build the HTML structure for all videos ===
+        for (const [term, termVideos] of Object.entries(groupedVideos)) {
+            console.log(`APP.HTML: Building HTML for ${termVideos.length} videos for term "${term}"`);
+            // Add a subheader for the search term
+            const termHeader = document.createElement('div');
+            termHeader.className = 'search-term-header';
+            termHeader.textContent = `Results for "${term}"`;
+            fragment.appendChild(termHeader);
+
+            // Display each video for this term
+            for (let index = 0; index < termVideos.length; index++) {
+                const video = termVideos[index];
+                // Basic check for essential video data
+                if (!video || !video.id || !video.snippet || !video.statistics) {
+                    console.warn("APP.HTML: Skipping invalid video data object:", video);
+                    continue;
+                }
+
+                const videoItem = document.createElement('div');
+                videoItem.className = 'video-item';
+                videoItem.id = `video-item-${video.id}`; // Add unique ID
+
+                const views = parseInt(video.statistics.viewCount || 0).toLocaleString();
+                const likes = video.statistics.likeCount ? parseInt(video.statistics.likeCount).toLocaleString() : 'N/A'; // Handle missing like count
+                const publishDate = video.snippet.publishedAt ? new Date(video.snippet.publishedAt).toLocaleDateString() : 'N/A';
+                const videoUrl = `https://www.youtube.com/watch?v=$${video.id}`; // Corrected template literal
+                const thumbnailUrl = video.snippet.thumbnails?.medium?.url || video.snippet.thumbnails?.default?.url || ''; // Fallback thumbnail
+                const title = video.snippet.title || 'No Title';
+                const channelTitle = video.snippet.channelTitle || 'Unknown Channel';
+                const description = video.snippet.description || '';
+                const shortDescription = description.length > 150 ? description.substring(0, 150) + '...' : description;
+
+
+                // Create basic video info HTML
+                let videoHtml = `
+                    <div class="video-thumbnail">
+                        <a href="${videoUrl}" target="_blank" rel="noopener noreferrer">
+                            ${thumbnailUrl ? `<img src="${thumbnailUrl}" alt="Thumbnail for ${title}">` : '(No Thumbnail)'}
+                        </a>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">
+                            ${index + 1}. <a href="${videoUrl}" target="_blank" rel="noopener noreferrer">${title}</a>
+                        </div>
+                        <div class="video-channel">
+                            Channel: ${channelTitle}
+                        </div>
+                        <div class="video-stats">
+                            ${views} views • ${likes} likes • Published on ${publishDate}
+                        </div>
+                        <div class="video-description" title="${description}"> ${shortDescription}
+                        </div>
+                `; // Note: Closing </div> for video-info comes after summary section
+
+                // If summaries are enabled, add placeholders AND mark for later fetching
+                if (shouldGenerateSummaries) {
+                    videoHtml += `
+                        <div class="video-summary-container" id="summary-container-${video.id}">
+                             <div class="summary-header">Gemini Summary:</div>
+                            <div class="video-summary-loading" id="summary-loading-${video.id}"> Generating summary...</div>
+                            <div class="video-summary-content" id="summary-content-${video.id}" style="display: none;"></div>
+                        </div>
+                    `;
+                    // Mark this video for summary fetching later IF a key exists
+                    if (geminiApiKey) {
+                        videosToSummarize.push(video);
+                    }
+                    // Else: the "no key" message will be handled after elements are in DOM
+                }
+
+                // Close the video info div
+                videoHtml += `</div>`;
+
+                // Set the HTML content for the video item
+                videoItem.innerHTML = videoHtml;
+
+                // Add the video item to the fragment
+                fragment.appendChild(videoItem);
+
+                // --- DO NOT CALL fetchAndDisplaySummary HERE ---
+
+            } // End loop through termVideos
+        } // End loop through groupedVideos
+
+        // *** STEP 1: Append all generated HTML fragment to the DOM ***
+        console.log("APP.HTML: Appending video fragment to resultsDiv.");
+        resultsDiv.appendChild(fragment);
+
+        // *** STEP 2: Now that elements are in the DOM, fetch summaries ***
+        if (shouldGenerateSummaries) {
+            if (videosToSummarize.length > 0) {
+                 console.log(`APP.HTML: Starting summary fetches for ${videosToSummarize.length} videos.`);
+                // Use Promise.allSettled to handle potential individual fetch errors gracefully
+                const summaryPromises = videosToSummarize.map(video => fetchAndDisplaySummary(video, geminiApiKey));
+                Promise.allSettled(summaryPromises).then(results => {
+                     console.log("APP.HTML: All summary fetches settled.");
+                     results.forEach((result, index) => {
+                         if (result.status === 'rejected') {
+                             console.error(`APP.HTML: Summary fetch failed for video ${videosToSummarize[index].id}:`, result.reason);
+                             // Optionally update UI for this specific video to show fetch error
+                             const contentElement = document.getElementById(`summary-content-${videosToSummarize[index].id}`);
+                             const loadingElement = document.getElementById(`summary-loading-${videosToSummarize[index].id}`);
+                             if (loadingElement) loadingElement.style.display = 'none';
+                             if (contentElement) {
+                                 contentElement.innerHTML = `<span class="error">Failed to load summary: ${result.reason?.message || 'Unknown error'}</span>`;
+                                 contentElement.style.display = 'block';
+                             }
+                         }
+                     });
+                 });
+            } else if (!geminiApiKey) {
+                // Handle the "no key" message now that elements exist
+                console.log("APP.HTML: Updating summary placeholders to show 'API key needed'.");
+                // Loop through *all* videos displayed that *should* have summaries
+                videos.forEach(video => {
+                     // Check if this video should have had a summary section added
+                     const summaryContainer = document.getElementById(`summary-container-${video.id}`);
+                     if (summaryContainer) {
+                         const loadingElement = document.getElementById(`summary-loading-${video.id}`);
+                         const contentElement = document.getElementById(`summary-content-${video.id}`);
+                         if (loadingElement) loadingElement.style.display = 'none';
+                         if (contentElement) {
+                             contentElement.innerHTML = '<span class="error">Summary requires a Gemini API key.</span>';
+                             contentElement.style.display = 'block';
+                         }
+                     }
+                 });
+            }
+        }
+
+
+        // Add a copyable list of links section after all videos are added (summary fetching happens async)
+        addCopyableLinksSection(videos, resultsDiv);
+    }
+
+     // Helper function to fetch and display summary for a single video
+     async function fetchAndDisplaySummary(video, geminiApiKey) {
+         console.log(`APP.HTML: Starting summary fetch for video ${video.id}`);
+         const loadingElement = document.getElementById(`summary-loading-${video.id}`);
+         const contentElement = document.getElementById(`summary-content-${video.id}`);
+
+         if (!loadingElement || !contentElement) {
+              console.error(`APP.HTML: Summary placeholder elements not found for video ${video.id}`);
+              return;
+         }
+
+         try {
+             // Fetch summary from Gemini API
+             const summaryHtml = await fetchGeminiSummary(video, geminiApiKey);
+
+             // Update the summary content
+             contentElement.innerHTML = summaryHtml; // Use innerHTML as fetchGeminiSummary returns HTML string
+
+             // Hide loading, show summary content
+             loadingElement.style.display = 'none';
+             contentElement.style.display = 'block';
+             console.log(`APP.HTML: Summary displayed for video ${video.id}`);
+
+         } catch (error) {
+             // This catch is likely redundant if fetchGeminiSummary handles its own errors,
+             // but provides a fallback.
+             console.error(`APP.HTML: Error displaying summary for video ${video.id}:`, error);
+             contentElement.innerHTML = `<span class="error">Error loading summary: ${error.message}</span>`;
+             loadingElement.style.display = 'none';
+             contentElement.style.display = 'block';
+         }
+     }
+
+
+     // Function to add the copyable links section
+     function addCopyableLinksSection(videos, resultsDiv) {
+         console.log("APP.HTML: Adding copyable links section.");
+         if (!resultsDiv) return;
+
+         // Check if section already exists, remove if so
+         const existingSection = resultsDiv.querySelector('.links-section');
+         if (existingSection) {
+             existingSection.remove();
+         }
+
+         const linksSection = document.createElement('div');
+         linksSection.className = 'links-section';
+         linksSection.style.marginTop = '30px';
+         linksSection.style.borderTop = '1px solid #ccc';
+         linksSection.style.paddingTop = '20px';
+
+
+         const linksHeader = document.createElement('h3');
+         linksHeader.textContent = 'Copyable Video Links';
+         linksSection.appendChild(linksHeader);
+
+         const linksList = document.createElement('textarea');
+         linksList.style.width = '100%';
+         linksList.style.minHeight = '150px'; // Use min-height
+         linksList.style.padding = '10px';
+         linksList.style.marginTop = '10px';
+         linksList.readOnly = true;
+         linksList.style.boxSizing = 'border-box'; // Include padding in width
+         linksList.setAttribute('aria-label', 'List of video titles and links');
+
+
+         // Populate the links with title and URL, grouped by search term
+         let linksText = '';
+         let globalIndex = 1;
+         const groupedVideos = {}; // Regroup for this section
+         videos.forEach(video => {
+            const term = video.searchTerm || 'Unknown Term';
+            if (!groupedVideos[term]) groupedVideos[term] = [];
+            groupedVideos[term].push(video);
+         });
+
+
+         for (const [term, termVideos] of Object.entries(groupedVideos)) {
+             linksText += `\n--- Results for "${term}" ---\n\n`;
+             termVideos.forEach((video) => {
+                  const title = video.snippet?.title || 'No Title';
+                  const videoUrl = `https://www.youtube.com/watch?v=${video.id}`;
+                 linksText += `${globalIndex}. ${title}\n`;
+                 linksText += `   ${videoUrl}\n\n`;
+                 globalIndex++;
+             });
+         }
+
+         linksList.value = linksText.trim(); // Trim leading/trailing whitespace
+         linksSection.appendChild(linksList);
+
+         // Add a copy button
+         const copyButton = document.createElement('button');
+         copyButton.textContent = 'Copy All Links';
+         copyButton.style.marginTop = '10px';
+         copyButton.addEventListener('click', () => {
+             try {
+                // Modern clipboard API (preferred, needs secure context - HTTPS or localhost)
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(linksList.value).then(() => {
+                        console.log("APP.HTML: Links copied to clipboard (modern API).");
+                        copyButton.textContent = 'Copied!';
+                         copyButton.disabled = true;
+                        setTimeout(() => {
+                            copyButton.textContent = 'Copy All Links';
+                             copyButton.disabled = false;
+                        }, 2000);
+                    }).catch(err => {
+                         console.error('APP.HTML: Failed to copy links (modern API):', err);
+                         // Fallback to execCommand if modern API fails
+                         copyViaExecCommand(linksList, copyButton);
+                    });
+                } else {
+                    // Fallback for non-secure contexts or older browsers
+                    copyViaExecCommand(linksList, copyButton);
+                }
+             } catch (err) {
+                  console.error('APP.HTML: Error during copy operation:', err);
+                 copyButton.textContent = 'Copy Failed!';
+                  setTimeout(() => { copyButton.textContent = 'Copy All Links'; }, 2000);
+             }
+         });
+         linksSection.appendChild(copyButton);
+
+         resultsDiv.appendChild(linksSection);
+     }
+
+     // Helper for execCommand copy fallback
+     function copyViaExecCommand(textArea, button) {
+         console.log("APP.HTML: Attempting copy via execCommand fallback.");
+         textArea.select(); // Select the text
+          textArea.setSelectionRange(0, 99999); // For mobile devices
+
+         try {
+             const successful = document.execCommand('copy');
+             if (successful) {
+                 console.log("APP.HTML: Links copied to clipboard (execCommand).");
+                 button.textContent = 'Copied!';
+                 button.disabled = true;
+                 setTimeout(() => {
+                      button.textContent = 'Copy All Links';
+                     button.disabled = false;
+                  }, 2000);
+             } else {
+                  console.error('APP.HTML: execCommand copy failed.');
+                 button.textContent = 'Copy Failed!';
+                  setTimeout(() => { button.textContent = 'Copy All Links'; }, 2000);
+             }
+         } catch (err) {
+              console.error('APP.HTML: Error using execCommand copy:', err);
+             button.textContent = 'Copy Failed!';
+              setTimeout(() => { button.textContent = 'Copy All Links'; }, 2000);
+         }
+         // Deselect text after attempt
+         window.getSelection()?.removeAllRanges();
+     }
+
+
+    </script>
+
+</body>
+</html>
